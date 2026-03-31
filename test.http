@@ -45,7 +45,7 @@ POST http://localhost:3002/products HTTP/1.1
 content-type: application/json
 
 {
-    "name": "Kitkat",
+    "name": "silverqueen",
     "desc": "snack cokelat",
     "stock": 100,
     "price": 10000
@@ -57,4 +57,20 @@ content-type: application/json
 
 ###
 GET http://localhost:3002/products?page=1&limit=5 HTTP/1.1
+content-type: application/json
+
+###
+PUT http://localhost:3002/products/17 HTTP/1.1
+content-type: application/json
+
+{
+    "stock": 200
+}
+
+###
+GET http://localhost:3002/products/16 HTTP/1.1
+content-type: application/json
+
+###
+DELETE http://localhost:3002/products/16 HTTP/1.1
 content-type: application/json

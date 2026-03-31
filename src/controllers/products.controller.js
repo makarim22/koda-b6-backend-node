@@ -35,6 +35,65 @@ const productsController = {
       res.status(500).json({ error: "Failed to retreive products" });
     }
   },
+  /**
+   * Gets a single product by ID
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  async getProductById(req, res) {
+    try {
+      const product = await productsModel.getById(parseInt(req.params.id));
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch product" });
+    }
+  },
+
+  /**
+   * Updates a product
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  async updateProduct(req, res) {
+    try {
+      const product = await productsModel.update(
+        parseInt(req.params.id),
+        req.body
+      );
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to update product" });
+    }
+  },
+
+  /**
+   * Deletes a product
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  async deleteProduct(req, res) {
+    try {
+      const deleted = await productsModel.delete(parseInt(req.params.id));
+      if (!deleted) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json({ message: "Product deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  },
 };
 
 export default productsController;
