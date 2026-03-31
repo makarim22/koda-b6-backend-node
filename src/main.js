@@ -14,7 +14,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/api/users", userRoutes);
+app.use("/admin/users", userRoutes);
 
 app.get("/", function(req, res){
     res.json({
