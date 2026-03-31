@@ -2,6 +2,11 @@ import UserModel from "../models/users.model.js";
 
 function createUserController() {
   return {
+    /**
+     * 
+     * @param {import("express").Request} req 
+     * @param {import("express").Response} res 
+     */
     createUser(req, res) {
       const { name, email } = req.body;
 
@@ -13,6 +18,11 @@ function createUserController() {
       res.status(201).json(user);
     },
 
+    /**
+     * 
+     * @param {import("express").Request} req 
+     * @param {import("express").Response} res 
+     */
     getAllUsers(req, res) {
      const page = parseInt(req.query.page) || 1;
      const limit = parseInt(req.query.limit) || 10;
@@ -21,6 +31,11 @@ function createUserController() {
       res.json(users);
     },
 
+    /**
+     * 
+     * @param {import("express").Request} req 
+     * @param {import("express").Response} res 
+     */
     getUserById(req, res) {
       const user = UserModel.getById(parseInt(req.params.id));
       if (!user) {
@@ -29,6 +44,11 @@ function createUserController() {
       res.json(user);
     },
 
+    /**
+     * 
+     * @param {import("express").Request} req 
+     * @param {import("express").Response} res 
+     */
     updateUser(req, res) {
       const user = UserModel.update(parseInt(req.params.id), req.body);
       if (!user) {
@@ -37,6 +57,12 @@ function createUserController() {
       res.json(user);
     },
 
+
+    /**
+     * 
+     * @param {import("express").Request} req 
+     * @param {import("express").Response} res 
+     */
     deleteUser(req, res) {
       const deleted = UserModel.delete(parseInt(req.params.id));
       if (!deleted) {
