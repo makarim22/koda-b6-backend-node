@@ -1,20 +1,15 @@
 import express from "express";
 import userRoutes from "./routes/users.routes.js";
-// import db from './db/index.js';
+import authRoutes from "./routes/auth.routes.js";
+
 
 const app = express();
-
-// try {
-//   await db.query('SELECT NOW()')
-//   console.log('✓ Database connected')
-// } catch (err) {
-//   console.error('✗ Database connection failed:', err.message)
-//   process.exit(1)
-// }
 
 app.use(express.json());
 
 app.use("/admin/users", userRoutes);
+
+app.use("/register", authRoutes);
 
 app.get("/", function(req, res){
     res.json({

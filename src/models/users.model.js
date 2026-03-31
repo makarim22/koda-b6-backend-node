@@ -57,6 +57,17 @@ const UserModel = {
     return result.rows[0];
   },
 
+    /**
+   * Retrieves a single user by their email
+   * 
+   * @param {string} email - The user's email
+   * @returns {Promise<Object|undefined>} The user object if found, undefined otherwise
+   */
+  async getByEmail(email){
+   const result = await db.query('select * from users where email= $1', [email]);
+   return result.rows[0];
+  },
+
   /**
    * Updates a user's information by ID
    * Only updates provided fields, preserves existing values for omitted fields
