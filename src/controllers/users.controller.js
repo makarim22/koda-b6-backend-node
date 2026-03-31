@@ -1,76 +1,107 @@
 import UserModel from "../models/users.model.js";
 
-function createUserController() {
-  return {
-    /**
-     * 
-     * @param {import("express").Request} req 
-     * @param {import("express").Response} res 
-     */
-    createUser(req, res) {
-      const { name, email } = req.body;
+const UserController = {
+  /**
+   * Creates a new user
+   * 
+   * @param {import("express").Request} req 
+   * @param {import("express").Response} res 
+   */
+  async createUser(req, res) {
+    try {
+      const { name, email, password, confirmPassword } = req.body;
 
       if (!name || !email) {
         return res.status(400).json({ error: "Name and email are required" });
       }
 
-      const user = UserModel.create({ name, email });
+      if (password !== confirmPassword){
+         return res.status(400).json({ error: "confirm password doesn't match" });
+      }
+
+      const user = await UserModel.create({ name, email, password });
       res.status(201).json(user);
-    },
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  },
 
-    /**
-     * 
-     * @param {import("express").Request} req 
-     * @param {import("express").Response} res 
-     */
-    getAllUsers(req, res) {
-     const page = parseInt(req.query.page) || 1;
-     const limit = parseInt(req.query.limit) || 10;
-  
-      const users = UserModel.getAll(page, limit);
+  /**
+   * Gets all users with pagination
+   * 
+   * @param {import("express").Request} req 
+   * @param {import("express").Response} res 
+   */
+  async getAllUsers(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const users = await UserModel.getAll(page, limit);
       res.json(users);
-    },
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  },
 
-    /**
-     * 
-     * @param {import("express").Request} req 
-     * @param {import("express").Response} res 
-     */
-    getUserById(req, res) {
-      const user = UserModel.getById(parseInt(req.params.id));
+  /**
+   * Gets a single user by ID
+   * 
+   * @param {import("express").Request} req 
+   * @param {import("express").Response} res 
+   */
+  async getUserById(req, res) {
+    try {
+      const user = await UserModel.getById(parseInt(req.params.id));
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
       res.json(user);
-    },
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  },
 
-    /**
-     * 
-     * @param {import("express").Request} req 
-     * @param {import("express").Response} res 
-     */
-    updateUser(req, res) {
-      const user = UserModel.update(parseInt(req.params.id), req.body);
+  /**
+   * Updates a user
+   * 
+   * @param {import("express").Request} req 
+   * @param {import("express").Response} res 
+   */
+  async updateUser(req, res) {
+    try {
+      const user = await UserModel.update(parseInt(req.params.id), req.body);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
       res.json(user);
-    },
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  },
 
-
-    /**
-     * 
-     * @param {import("express").Request} req 
-     * @param {import("express").Response} res 
-     */
-    deleteUser(req, res) {
-      const deleted = UserModel.delete(parseInt(req.params.id));
+  /**
+   * Deletes a user
+   * 
+   * @param {import("express").Request} req 
+   * @param {import("express").Response} res 
+   */
+  async deleteUser(req, res) {
+    try {
+      const deleted = await UserModel.delete(parseInt(req.params.id));
       if (!deleted) {
         return res.status(404).json({ error: "User not found" });
       }
       res.json({ message: "User deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete user" });
     }
-  };
-}
+  }
+};
 
-export default createUserController();
+export default UserController;

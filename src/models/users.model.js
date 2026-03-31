@@ -1,131 +1,103 @@
-/**
- * Creates a User Model with CRUD operations and pagination support
- * Uses closure pattern to maintain private state (users array and nextId counter)
- * 
- * @returns {Object} User model object with methods for managing users
- * 
- * @example
- * const userModel = createUserModel();
- * const newUser = userModel.create({ name: 'John', email: 'john@example.com' });
- */
-function createUserModel() {
-  let users = [];
-  let nextId = 1;
+import db from '../db/index.js';
 
-  return {
+const UserModel = {
+  /**
+   * Creates a new user in the database
+   * 
+   * @param {Object} userData - User data object
+   * @param {string} userData.name - User's full name
+   * @param {string} userData.email - User's email address
+   * @param {string} userData.password - User's password
+   * @returns {Promise<Object>} The created user object with auto-generated id
+   */
+  async create(userData) {
+    const { name, email, password } = userData;
+    const result = await db.query(
+      'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING *',
+      [name, email, password]
+    );
+    return result.rows[0];
+  },
 
-        /**
-     * Creates a new user and adds it to the users array
-     * 
-     * @param {Object} userData - User data object
-     * @param {string} userData.name - User's full name
-     * @param {string} userData.email - User's email address
-     * @returns {Object} The created user object with auto-generated id
-     * 
-     * @example
-     * const user = userModel.create({ name: 'John Doe', email: 'john@example.com' });
-     * // Returns: { id: 1, name: 'John Doe', email: 'john@example.com' }
-     */
-    create(userData) {
-      const user = {
-        id: nextId++,
-        name: userData.name,
-        email: userData.email
-      };
-      users.push(user);
-      return user;
-    },
+  /**
+   * Retrieves all users with pagination support
+   * 
+   * @param {number} [page=1] - Page number (1-indexed)
+   * @param {number} [limit=10] - Number of users per page
+   * @returns {Promise<Object>} Paginated response object
+   */
+  async getAll(page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+    
+    const result = await db.query(
+      'SELECT * FROM users ORDER BY id LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+    
+    const countResult = await db.query('SELECT COUNT(*) FROM users');
+    const totalUser = parseInt(countResult.rows[0].count);
+    
+    return {
+      data: result.rows,
+      totalUser,
+      currentPage: page,
+      limit,
+      totalPages: Math.ceil(totalUser / limit)
+    };
+  },
 
-     /**
-     * Retrieves all users with pagination support
-     * 
-     * @param {number} [page=1] - Page number (1-indexed)
-     * @param {number} [limit=10] - Number of users per page
-     * @returns {Object} Paginated response object
-     * @returns {Array} return.data - Array of user objects for the current page
-     * @returns {number} return.totalUser - Total number of users in database
-     * @returns {number} return.currentPage - Current page number
-     * @returns {number} return.limit - Limit per page
-     * @returns {number} return.totalPages - Total number of pages
-     * 
-     * @example
-     * const result = userModel.getAll(1, 10);
-     * // Returns: {
-     * //   data: [...],
-     * //   totalUser: 25,
-     * //   currentPage: 1,
-     * //   limit: 10,
-     * //   totalPages: 3
-     * // }
-     */
-    getAll(page = 1, limit = 10) {
-  const start = (page - 1) * limit;
-  const end = start + limit;
-  const paginatedUsers = users.slice(start, end);
-  
-  return {
-    data: paginatedUsers,
-    totalUser: users.length,
-    currentPage : page,
-    limit,
-    totalPages: Math.ceil(users.length / limit)
-  };
-},
+  /**
+   * Retrieves a single user by their ID
+   * 
+   * @param {number} id - The user's unique identifier
+   * @returns {Promise<Object|undefined>} The user object if found, undefined otherwise
+   */
+  async getById(id) {
+    const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+    return result.rows[0];
+  },
 
-    /**
-     * Retrieves a single user by their ID
-     * 
-     * @param {number} id - The user's unique identifier
-     * @returns {Object|undefined} The user object if found, undefined otherwise
-     * 
-     * @example
-     * const user = userModel.getById(1);
-     * // Returns: { id: 1, name: 'John Doe', email: 'john@example.com' }
-     */
-    getById(id) {
-      return users.find((user) => user.id === id);
-    },
+  /**
+   * Updates a user's information by ID
+   * Only updates provided fields, preserves existing values for omitted fields
+   * 
+   * @param {number} id - The user's unique identifier
+   * @param {Object} userData - Updated user data object
+   * @returns {Promise<Object|null>} The updated user object if found, null if user doesn't exist
+   */
+  async update(id, userData) {
+    const fields = [];
+    const values = [];
+    let paramCount = 1;
 
-    /**
-     * Updates a user's information by ID
-     * Only updates provided fields, preserves existing values for omitted fields
-     * 
-     * @param {number} id - The user's unique identifier
-     * @param {Object} userData - Updated user data object
-     * @param {string} [userData.name] - Updated user name (optional)
-     * @param {string} [userData.email] - Updated user email (optional)
-     * @returns {Object|null} The updated user object if found, null if user doesn't exist
-     * 
-     * @example
-     * const user = userModel.update(1, { name: 'Jane Doe' });
-     * // Returns: { id: 1, name: 'Jane Doe', email: 'john@example.com' }
-     */
-    update(id, userData) {
-      const user = this.getById(id);
-      if (!user) return null;
-      user.name = userData.name || user.name;
-      user.email = userData.email || user.email;
-      return user;
-    },
-
-     /**
-     * Deletes a user by their ID
-     * 
-     * @param {number} id - The user's unique identifier
-     * @returns {boolean} True if user was deleted, false if user not found
-     * 
-     * @example
-     * const success = userModel.delete(1);
-     * // Returns: true (if user with id 1 existed)
-     */
-
-    delete(id) {
-      const index = users.findIndex((user) => user.id === id);
-      if (index === -1) return false;
-      users.splice(index, 1);
-      return true;
+    if (userData.name !== undefined) {
+      fields.push(`name = $${paramCount++}`);
+      values.push(userData.name);
     }
-  };
-}
+    if (userData.email !== undefined) {
+      fields.push(`email = $${paramCount++}`);
+      values.push(userData.email);
+    }
 
-export default createUserModel();
+    if (fields.length === 0) return null;
+
+    values.push(id);
+    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+    
+    const result = await db.query(sql, values);
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Deletes a user by their ID
+   * 
+   * @param {number} id - The user's unique identifier
+   * @returns {Promise<boolean>} True if user was deleted, false if user not found
+   */
+  async delete(id) {
+    const result = await db.query('DELETE FROM users WHERE id = $1', [id]);
+    return result.rowCount > 0;
+  }
+};
+
+export default UserModel;
