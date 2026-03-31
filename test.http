@@ -1,0 +1,30 @@
+GET http://localhost:3002/api/users HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/api/users?page=1&limit=5 HTTP/1.1
+content-type: application/json
+
+
+###
+POST http://localhost:3002/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "name": "hilmy",
+    "email": "hilmy@gmail.com"
+}
+
+###
+PUT http://localhost:3002/api/users/1 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "mahmudnew",
+    "email": "mahmud@gmail.com"
+}
+
+###
+DELETE http://localhost:3002/api/users/9 HTTP/1.1
+content-type: application/json
+
