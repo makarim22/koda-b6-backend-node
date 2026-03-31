@@ -27,7 +27,7 @@ const UserController = {
       console.log("hashedPassword", hashedPassword);
 
       const user = await UserModel.create({
-        full_name: name, 
+        name,
         email,
         password: hashedPassword, 
       });

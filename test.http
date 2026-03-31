@@ -40,3 +40,13 @@ content-type: application/json
 DELETE http://localhost:3002/api/users/9 HTTP/1.1
 content-type: application/json
 
+###
+POST http://localhost:3002/products HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Kitkat",
+    "desc": "snack cokelat",
+    "stock": 100,
+    "price": 10000
+}
