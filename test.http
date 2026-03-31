@@ -50,3 +50,11 @@ content-type: application/json
     "stock": 100,
     "price": 10000
 }
+
+###
+GET http://localhost:3002/products HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/products?page=1&limit=5 HTTP/1.1
+content-type: application/json
