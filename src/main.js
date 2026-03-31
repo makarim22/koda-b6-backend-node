@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use("/admin/users", userRoutes);
 
-app.use("/register", authRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/", function(req, res){
     res.json({

@@ -1,11 +1,13 @@
 import UserModel from "../models/users.model.js";
 
+import argon2 from "argon2";
+
 const UserController = {
   /**
    * Creates a new user
-   * 
-   * @param {import("express").Request} req 
-   * @param {import("express").Response} res 
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
    */
   async createUser(req, res) {
     try {
@@ -15,11 +17,20 @@ const UserController = {
         return res.status(400).json({ error: "Name and email are required" });
       }
 
-      if (password !== confirmPassword){
-         return res.status(400).json({ error: "confirm password doesn't match" });
+      if (password !== confirmPassword) {
+        return res
+          .status(400)
+          .json({ error: "confirm password doesn't match" });
       }
 
-      const user = await UserModel.create({ name, email, password });
+      const hashedPassword = await argon2.hash(password)
+      console.log("hashedPassword", hashedPassword);
+
+      const user = await UserModel.create({
+        full_name: name, 
+        email,
+        password: hashedPassword, 
+      });
       res.status(201).json(user);
     } catch (err) {
       console.error(err);
@@ -29,9 +40,9 @@ const UserController = {
 
   /**
    * Gets all users with pagination
-   * 
-   * @param {import("express").Request} req 
-   * @param {import("express").Response} res 
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
    */
   async getAllUsers(req, res) {
     try {
@@ -48,9 +59,9 @@ const UserController = {
 
   /**
    * Gets a single user by ID
-   * 
-   * @param {import("express").Request} req 
-   * @param {import("express").Response} res 
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
    */
   async getUserById(req, res) {
     try {
@@ -67,9 +78,9 @@ const UserController = {
 
   /**
    * Updates a user
-   * 
-   * @param {import("express").Request} req 
-   * @param {import("express").Response} res 
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
    */
   async updateUser(req, res) {
     try {
@@ -86,9 +97,9 @@ const UserController = {
 
   /**
    * Deletes a user
-   * 
-   * @param {import("express").Request} req 
-   * @param {import("express").Response} res 
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
    */
   async deleteUser(req, res) {
     try {
@@ -101,7 +112,7 @@ const UserController = {
       console.error(err);
       res.status(500).json({ error: "Failed to delete user" });
     }
-  }
+  },
 };
 
 export default UserController;
