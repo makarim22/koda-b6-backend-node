@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node --watch src/main.js",
     "start": "node src/main.js",
-    "seed": "node src/scripts/seed.js"
+    "seed": "node src/scripts/seed.js",
+    "swagger": "node src/swagger.js"
+
   },
   "keywords": [],
   "author": "",

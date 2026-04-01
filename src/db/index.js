@@ -9,13 +9,12 @@ const pool = new Pool({
 })
 
 
-const query = (text, params) => {
+const query = async (text, params) => {
   const start = Date.now()
-  return pool.query(text, params).then((res) => {
-    const duration = Date.now() - start
-    console.log('Executed query', { text, duration, rows: res.rowCount })
-    return res
-  })
+  const res = await pool.query(text, params)
+  const duration = Date.now() - start
+  console.log('Executed query', { text, duration, rows: res.rowCount })
+  return res
 }
 
 const getClient = () => {
