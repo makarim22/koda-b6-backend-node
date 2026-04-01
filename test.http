@@ -23,8 +23,8 @@ POST http://localhost:3002/auth/login HTTP/1.1
 content-type: application/json
 
 {
-    "email": "irul2@gmail.com",
-    "password": "secret22"
+    "email": "harjasa.satria@gmail.com",
+    "password": "password123"
 }
 
 ###

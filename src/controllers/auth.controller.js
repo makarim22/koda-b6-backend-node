@@ -1,4 +1,6 @@
 import UserModel from "../models/users.model.js";
+import {generateJWT} from "../lib/jwt.js"
+import "dotenv/config"
 
 import argon2 from "argon2";
 
@@ -25,8 +27,11 @@ const authController = {
         password: hashedPassword,
       });
 
+
       res.status(201).json(newUser);
-    } catch (err) {}
+    } catch (err) {
+      res.status(500).json("error database")
+    }
   },
 
    async login(req, res) {
@@ -47,9 +52,17 @@ const authController = {
         return res.status(401).json({ error: "invalid credentials" });
       }
 
+       const jwtConfig = { 
+      Secret: process.env.JWT_SECRET, 
+      Expiration: 3600000, 
+      Issuer: 'coffeeshop-api' 
+      };
+
       // Return user without password
       const { password: _, ...userWithoutPassword } = user;
-      res.status(200).json("login succeeded");
+
+      const token = generateJWT(user.id, user.email, jwtConfig)
+       res.status(200).json({ message: "login succeeded", token, user: userWithoutPassword });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
