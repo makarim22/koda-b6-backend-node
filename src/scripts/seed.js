@@ -125,7 +125,7 @@ const seedDatabase = async () => {
       // Generate email from the user's name for consistency
       const nameParts = fullName.toLowerCase().split(' ');
       const emailBase = nameParts.join('.');
-      const email = `${emailBase}@coffeeshop.id`;
+      const email = `${emailBase}@gmail.com`;
       const password = await argon2.hash('password123');
       
       await pool.query(
