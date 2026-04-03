@@ -24,7 +24,15 @@ const productsController = {
    * @param {import("express").Response} res
    */
   async getAllProducts(req, res) {
+
+    const {name} = req.query;
+    console.log("namanya", name);
+
     try {
+      if(name){
+      const product = await productsModel.getByName(name);
+      return res.json(product ? [product] : []);
+    }
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
 

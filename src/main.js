@@ -2,6 +2,7 @@ import express from "express";
 import userRoutes from "./routes/users.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import productsRoutes from "./routes/products.routes.js";
+import userReviewsRoutes from "./routes/user-review.routes.js";
 import { specs } from './swagger.js';
 import swaggerUi from 'swagger-ui-express';
 
@@ -14,6 +15,8 @@ app.use("/admin/users", userRoutes);
 app.use("/auth", authRoutes);
 
 app.use("/products", productsRoutes);
+
+app.use("/reviews", userReviewsRoutes)
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 

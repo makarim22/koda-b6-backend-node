@@ -58,6 +58,11 @@ const ProductModel = {
     return result.rows[0];
   },
 
+  async getByName(name) {
+  const result = await db.query('SELECT * FROM products WHERE product_name ILIKE $1', [`%${name}%`]);
+  return result.rows;
+},
+
   /**
    * Updates a product's information by ID
    * Only updates provided fields, preserves existing values for omitted fields
