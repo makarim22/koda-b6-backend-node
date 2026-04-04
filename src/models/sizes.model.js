@@ -108,4 +108,4 @@ const SizeModel =  {
   }
 }
 
-export default SizeModel();
+export default SizeModel;

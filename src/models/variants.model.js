@@ -30,7 +30,7 @@ const VariantModel = {
     const result = await db.query(
       `SELECT v.id, v.name, v.additional_price
        FROM variants v
-       INNER JOIN product_variants pv ON v.id = pv.variant_id
+       INNER JOIN product_variant pv ON v.id = pv.variant_id
        WHERE pv.product_id = $1
        ORDER BY v.name`,
       [productId]
@@ -40,7 +40,7 @@ const VariantModel = {
 
   async addToProduct(productId, variantId) {
     const result = await db.query(
-      `INSERT INTO product_variants (product_id, variant_id) 
+      `INSERT INTO product_variant (product_id, variant_id) 
        VALUES ($1, $2) 
        ON CONFLICT (product_id, variant_id) DO NOTHING
        RETURNING *`,
@@ -51,7 +51,7 @@ const VariantModel = {
 
   async removeFromProduct(productId, variantId) {
     const result = await db.query(
-      `DELETE FROM product_variants 
+      `DELETE FROM product_variant
        WHERE product_id = $1 AND variant_id = $2
        RETURNING *`,
       [productId, variantId]
@@ -63,7 +63,7 @@ const VariantModel = {
     const result = await db.query(
       `SELECT p.id, p.name, p.description, p.price
        FROM products p
-       INNER JOIN product_variants pv ON p.id = pv.product_id
+       INNER JOIN product_variant pv ON p.id = pv.product_id
        WHERE pv.variant_id = $1
        ORDER BY p.name`,
       [variantId]
@@ -100,7 +100,7 @@ const VariantModel = {
 
   async isAssignedToProduct(productId, variantId) {
     const result = await db.query(
-      `SELECT id FROM product_variants 
+      `SELECT id FROM product_variant
        WHERE product_id = $1 AND variant_id = $2`,
       [productId, variantId]
     );
@@ -108,4 +108,4 @@ const VariantModel = {
   }
 }
 
-export default VariantModel();
+export default VariantModel;
