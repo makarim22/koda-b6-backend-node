@@ -4,7 +4,7 @@ import productsModel from "../models/products.model.js";
 const productDiscountsController = {
   async getDiscountsByProduct(req, res) {
     try {
-      const { productId } = req.params;
+      const { id: productId } = req.params;
 
       const product = await productsModel.getById(productId);
       if (!product) {
@@ -30,9 +30,10 @@ const productDiscountsController = {
 
   async createDiscount(req, res) {
     try {
-      const { productId } = req.params;
+      const { id: productId } = req.params;
       const { discount_rate, description, is_flash_sale } = req.body;
 
+      // Validate product exists
       const product = await productsModel.getById(productId);
       if (!product) {
         return res.status(404).json({
@@ -41,6 +42,7 @@ const productDiscountsController = {
         });
       }
 
+      // Validate required fields
       if (!discount_rate) {
         return res.status(400).json({
           status: 'error',
@@ -48,6 +50,7 @@ const productDiscountsController = {
         });
       }
 
+      // Validate discount rate
       if (discount_rate < 0 || discount_rate > 100) {
         return res.status(400).json({
           status: 'error',
@@ -79,9 +82,10 @@ const productDiscountsController = {
 
   async updateDiscount(req, res) {
     try {
-      const { productId, discountId } = req.params;
+      const { id: productId, discountId } = req.params;
       const { discount_rate, description, is_flash_sale, is_active } = req.body;
 
+      // Validate product exists
       const product = await productsModel.getById(productId);
       if (!product) {
         return res.status(404).json({
@@ -90,6 +94,7 @@ const productDiscountsController = {
         });
       }
 
+      // Validate discount exists and belongs to product
       const discount = await productDiscountsModel.validateExists(discountId);
       if (!discount || discount.product_id !== parseInt(productId)) {
         return res.status(404).json({
@@ -98,6 +103,7 @@ const productDiscountsController = {
         });
       }
 
+      // Validate discount rate if provided
       if (discount_rate !== undefined) {
         if (discount_rate < 0 || discount_rate > 100) {
           return res.status(400).json({
@@ -131,8 +137,9 @@ const productDiscountsController = {
 
   async deleteDiscount(req, res) {
     try {
-      const { productId, discountId } = req.params;
+      const { id: productId, discountId } = req.params;
 
+      // Validate product exists
       const product = await productsModel.getById(productId);
       if (!product) {
         return res.status(404).json({
@@ -141,6 +148,7 @@ const productDiscountsController = {
         });
       }
 
+      // Validate discount exists and belongs to product
       const discount = await productDiscountsModel.validateExists(discountId);
       if (!discount || discount.product_id !== parseInt(productId)) {
         return res.status(404).json({
