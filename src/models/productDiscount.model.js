@@ -108,4 +108,4 @@ const ProductDiscount = {
   }
 }
 
-export default ProductDiscount();
+export default ProductDiscount;
