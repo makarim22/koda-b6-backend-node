@@ -100,3 +100,17 @@ content-type: application/json
 ###
 GET http://localhost:3002/products/1/variants HTTP/1.1
 content-type: application/json
+
+###
+GET http://localhost:3002/products/1/discounts HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/checkout/create-order HTTP/1.1
+content-type: application/json
+
+{
+  "customerId": 1,
+  "paymentMethod": "transfer_bank",
+  "shippingAddress": "Jl. Merdeka No. 123, Jakarta Pusat, 12190"
+}
