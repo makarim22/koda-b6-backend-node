@@ -16,12 +16,15 @@ const checkoutController = {
       if (!cartItems || cartItems.length === 0) {
         return res.status(400).json({ error: "cart kosong" });
       }
+      console.log("cart items", cartItems);
 
       let subtotal = 0;
       const validatedItems = [];
 
       for (const item of cartItems) {
         const product = await productsModel.getById(item.product_id);
+        console.log("product", product);
+        console.log("itemnya", item);
 
         if (!product) {
           return res.status(404).json({
@@ -35,7 +38,8 @@ const checkoutController = {
           });
         }
 
-        const itemTotal = product.price * item.quantity;
+        const itemTotal = product.base_price * item.quantity;
+
         subtotal += itemTotal;
 
         validatedItems.push({
