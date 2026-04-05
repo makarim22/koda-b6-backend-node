@@ -1,6 +1,6 @@
-import db from '../db/index.js';
+import db from "../db/index.js";
 
-const ProductImage= {
+const ProductImage = {
   async create(productId, path, isPrimary = false) {
     const query = `
       INSERT INTO product_image (product_id, path, is_primary)
@@ -78,7 +78,21 @@ const ProductImage= {
   async hasImages(productId) {
     const count = await this.getImageCountByProductId(productId);
     return count > 0;
-  }
-}
+  },
+  async resetPrimaryImages(productId) {
+    const query = `
+    UPDATE product_image 
+    SET is_primary = false
+    WHERE product_id = $1 AND is_primary = true
+  `;
+    await db.query(query, [productId]);
+  },
+
+  async getImageCountByProductId(productId) {
+    const query = `SELECT COUNT(*) FROM product_image WHERE product_id = $1`;
+    const result = await db.query(query, [productId]);
+    return parseInt(result.rows[0].count);
+  },
+};
 
 export default ProductImage;

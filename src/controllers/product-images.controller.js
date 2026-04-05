@@ -1,151 +1,171 @@
-import productImagesModel from "../models/productImage.model.js";
-import productsModel from "../models/products.model.js";
+import ProductImage from "../models/productImage.model.js";
+import ProductModel from "../models/products.model.js";
+import fs from 'fs';
+import path from 'path';
 
 const productImagesController = {
-  async getImagesByProduct(req, res) {
+
+  async uploadImage(req, res) {
     try {
-      const { id: productId } = req.params;
-
-      const product = await productsModel.getById(productId);
-      if (!product) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Produk tidak ditemukan'
-        });
-      }
-
-      const images = await productImagesModel.getByProductId(productId);
-      res.json({
-        status: 'success',
-        data: images
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: 'Gagal mengambil gambar produk',
-        error: error.message
-      });
-    }
-  },
-
-  async addImageToProduct(req, res) {
-    try {
-      const { id: productId } = req.params;
-      const { path, is_primary } = req.body;
+      const { id } = req.params;
+      const { isPrimary } = req.body;
 
       // Validate product exists
-      const product = await productsModel.getById(productId);
+      const product = await ProductModel.getById(id);
       if (!product) {
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
         return res.status(404).json({
-          status: 'error',
-          message: 'Produk tidak ditemukan'
+          error: 'Produk tidak ditemukan'
         });
       }
 
-      // Validate required fields
-      if (!path) {
+      // Validate file exists
+      if (!req.file) {
         return res.status(400).json({
-          status: 'error',
-          message: 'Path gambar diperlukan'
+          error: 'File gambar tidak ditemukan'
         });
       }
 
-      const newImage = await productImagesModel.create({
-        product_id: productId,
-        path,
-        is_primary: is_primary || false
-      });
+      // If setting as primary, unset other primary images
+      if (isPrimary === true || isPrimary === 'true') {
+        await ProductImage.resetPrimaryImages(id);
+      }
+
+      // Store file path in database
+      const imagePath = `/uploads/product-images/${req.file.filename}`;
+      const imageRecord = await ProductImage.create(
+        id,
+        imagePath,
+        isPrimary === true || isPrimary === 'true'
+      );
 
       res.status(201).json({
-        status: 'success',
-        message: 'Gambar berhasil ditambahkan',
-        data: newImage
+        message: 'Gambar produk berhasil diunggah',
+        data: imageRecord
       });
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
+      // Clean up uploaded file on error
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(500).json({
-        status: 'error',
-        message: 'Gagal menambahkan gambar produk',
-        error: error.message
+        error: 'Gagal mengunggah gambar produk'
       });
     }
   },
 
-  async updateImage(req, res) {
+  async getProductImages(req, res) {
     try {
-      const { id: productId, imageId } = req.params;
-      const { path, is_primary } = req.body;
+      const { productId } = req.params;
 
-      // Validate product exists
-      const product = await productsModel.getById(productId);
+      const product = await ProductModel.getById(productId);
       if (!product) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Produk tidak ditemukan'
+          error: 'Produk tidak ditemukan'
         });
       }
 
-      // Validate image exists and belongs to product
-      const image = await productImagesModel.validateExists(imageId);
-      if (!image || image.product_id !== parseInt(productId)) {
+      const images = await ProductImage.getByProductId(productId);
+      res.json({
+        data: images
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: 'Gagal mengambil gambar produk'
+      });
+    }
+  },
+
+  async getPrimaryImage(req, res) {
+    try {
+      const { productId } = req.params;
+
+      const product = await ProductModel.getById(productId);
+      if (!product) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Gambar tidak ditemukan'
+          error: 'Produk tidak ditemukan'
         });
       }
 
-      const updateData = {};
-      if (path) updateData.path = path;
-      if (is_primary !== undefined) updateData.is_primary = is_primary;
-
-      const updatedImage = await productImagesModel.update(imageId, updateData);
+      const image = await ProductImage.getPrimaryImage(productId);
+      if (!image) {
+        return res.status(404).json({
+          error: 'Gambar utama tidak ditemukan'
+        });
+      }
 
       res.json({
-        status: 'success',
-        message: 'Gambar berhasil diperbarui',
-        data: updatedImage
+        data: image
       });
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       res.status(500).json({
-        status: 'error',
-        message: 'Gagal memperbarui gambar produk',
-        error: error.message
+        error: 'Gagal mengambil gambar utama'
       });
     }
   },
 
   async deleteImage(req, res) {
     try {
-      const { id: productId, imageId } = req.params;
+      const { imageId } = req.params;
 
-      // Validate product exists
-      const product = await productsModel.getById(productId);
-      if (!product) {
+      // Validate image exists
+      const image = await ProductImage.getById(imageId);
+      if (!image) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Produk tidak ditemukan'
+          error: 'Gambar tidak ditemukan'
         });
       }
 
-      // Validate image exists and belongs to product
-      const image = await productImagesModel.validateExists(imageId);
-      if (!image || image.product_id !== parseInt(productId)) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Gambar tidak ditemukan'
-        });
+      // Delete file from filesystem
+      const filePath = path.join(process.cwd(), 'uploads/product-images', path.basename(image.path));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
 
-      await productImagesModel.delete(imageId);
+      // Delete from database
+      await ProductImage.delete(imageId);
 
       res.json({
-        status: 'success',
         message: 'Gambar berhasil dihapus'
       });
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       res.status(500).json({
-        status: 'error',
-        message: 'Gagal menghapus gambar produk',
-        error: error.message
+        error: 'Gagal menghapus gambar'
+      });
+    }
+  },
+
+  async setAsPrimary(req, res) {
+    try {
+      const { imageId } = req.params;
+
+      const image = await ProductImage.getById(imageId);
+      if (!image) {
+        return res.status(404).json({
+          error: 'Gambar tidak ditemukan'
+        });
+      }
+
+      // Unset other primary images for this product
+      await ProductImage.resetPrimaryImages(image.product_id);
+
+      // Set this image as primary
+      const updatedImage = await ProductImage.update(imageId, image.path, true);
+
+      res.json({
+        message: 'Gambar berhasil diatur sebagai gambar utama',
+        data: updatedImage
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: 'Gagal mengatur gambar sebagai utama'
       });
     }
   }

@@ -4,6 +4,7 @@ import variantsController from "../controllers/variants.controller.js";
 import sizesController from "../controllers/sizes.controller.js";
 import productImagesController from "../controllers/product-images.controller.js";
 import productDiscountsController from "../controllers/product-discounts.controller.js";
+import { uploadProductImage } from '../config/multer.js';
 
 const router = express.Router();
 
@@ -1265,11 +1266,12 @@ router.delete("/:id/sizes/:sizeId", (req, res) => sizesController.removeSizeFrom
  *                   type: string
  */
 // Product Images routes
+
 router.get("/:id/images", (req, res) => productImagesController.getImagesByProduct(req, res));
 router.post("/:id/images", (req, res) => productImagesController.addImageToProduct(req, res));
 router.put("/:id/images/:imageId", (req, res) => productImagesController.updateImage(req, res));
 router.delete("/:id/images/:imageId", (req, res) => productImagesController.deleteImage(req, res));
-
+router.post('/:id/images/upload', uploadProductImage.single('image'),(req, res) => productImagesController.uploadImage(req, res));
 /**
  * @swagger
  * /api/products/{id}/discounts:
