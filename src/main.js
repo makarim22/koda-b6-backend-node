@@ -9,20 +9,14 @@ import { specs } from './swagger.js';
 import swaggerUi from 'swagger-ui-express';
 
 const app = express();
-
 app.use(express.json());
 
-app.use("/admin/users", userRoutes);
-
-app.use("/auth", authRoutes);
-
-app.use("/products", productsRoutes);
-
-app.use("/reviews", userReviewsRoutes)
-
-app.use("/checkout", checkoutRoutes);
-
-app.use("/payments", paymentRoutes);
+app.use("/api/admin/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productsRoutes);
+app.use("/api/reviews", userReviewsRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
