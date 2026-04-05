@@ -14,16 +14,31 @@ const paymentController = {
       console.log("order id nya", orderId);
       console.log("amount nya", amount);
 
-      const order = await ordersModel.getById(orderId);
+      const order = await ordersModel.getById(orderId, userId);
       if (!order) {
         return res.status(404).json({ error: "Pesanan tidak ditemukan" });
       }
 
-      if (order.total_amount !== amount) {
+      console.log("ordernya", order);
+
+      if (order.subtotal !== amount) {
         return res.status(400).json({
           error: "Jumlah pembayaran tidak sesuai dengan total pesanan",
         });
       }
+
+    const existingPayment = await paymentsModel.getByOrderId(orderId);
+    if (existingPayment && existingPayment.status === "pending") {
+      return res.status(400).json({
+        error: "Pembayaran untuk pesanan ini sudah dalam proses",
+      });
+    }
+
+    if (existingPayment && existingPayment.status === "completed") {
+      return res.status(400).json({
+        error: "Pesanan ini sudah dibayar",
+      });
+    }
 
       const payment = await paymentsModel.create({
         orderId,
@@ -120,8 +135,9 @@ const paymentController = {
    * @param {import("express").Response} res
    */
   async getPaymentById(req, res) {
+    console.log("paramnya", req.param);
     try {
-      const payment = await paymentsModel.getById(parseInt(req.params.id));
+      const payment = await paymentsModel.getById(parseInt(req.params.paymentId));
       if (!payment) {
         return res.status(404).json({ error: "Pembayaran tidak ditemukan" });
       }
@@ -152,80 +168,6 @@ const paymentController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Gagal mengambil pembayaran" });
-    }
-  },
-
-  /**
-   * Request refund
-   *
-   * @param {import("express").Request} req
-   * @param {import("express").Response} res
-   */
-  async requestRefund(req, res) {
-    try {
-      const { paymentId } = req.params;
-      const { reason } = req.body;
-
-      const payment = await paymentsModel.getById(paymentId);
-      if (!payment) {
-        return res.status(404).json({ error: "Pembayaran tidak ditemukan" });
-      }
-
-      if (payment.status !== "completed") {
-        return res.status(400).json({
-          error: "Hanya pembayaran yang selesai dapat direfund",
-        });
-      }
-
-      const updated = await paymentsModel.update(paymentId, {
-        status: "refund_requested",
-        refund_reason: reason || null,
-      });
-
-      const order = await ordersModel.getById(payment.order_id);
-      if (order) {
-        await ordersModel.update(payment.order_id, { status: "refund_requested" });
-      }
-
-      res.json(updated);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Gagal membuat permintaan refund" });
-    }
-  },
-
-  /**
-   * Approve and process refund
-   *
-   * @param {import("express").Request} req
-   * @param {import("express").Response} res
-   */
-  async processRefund(req, res) {
-    try {
-      const { paymentId } = req.params;
-
-      const payment = await paymentsModel.getById(paymentId);
-      if (!payment) {
-        return res.status(404).json({ error: "Pembayaran tidak ditemukan" });
-      }
-
-      if (payment.status !== "refund_requested") {
-        return res.status(400).json({
-          error: "Pembayaran tidak memiliki permintaan refund yang pending",
-        });
-      }
-
-      const updated = await paymentsModel.update(paymentId, {
-        status: "refunded",
-        refunded_at: new Date(),
-      });
-
-      await ordersModel.update(payment.order_id, { status: "refunded" });
-
-      res.json(updated);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Gagal memproses refund" });
     }
   },
 
