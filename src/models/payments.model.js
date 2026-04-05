@@ -37,7 +37,7 @@ const PaymentModel = {
 
   async getByOrderId(orderId) {
     const result = await db.query('SELECT * FROM payments WHERE order_id = $1 ORDER BY created_at DESC', [orderId]);
-    return result.rows;
+    return result.rows[0] || null;
   },
 
   async getByUserId(userId, page = 1, limit = 10) {

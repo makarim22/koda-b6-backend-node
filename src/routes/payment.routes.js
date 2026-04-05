@@ -44,20 +44,6 @@ router.get("/:paymentId", paymentController.getPaymentById);
 router.get("/order/:orderId", paymentController.getPaymentsByOrderId);
 
 /**
- * POST /api/payments/:paymentId/refund/request
- * Request refund for payment
- * Body: { reason, refundAmount }
- */
-router.post("/:paymentId/refund/request", paymentController.requestRefund);
-
-/**
- * POST /api/payments/:paymentId/refund/process
- * Process approved refund
- * Body: { status }
- */
-router.post("/:paymentId/refund/process", paymentController.processRefund);
-
-/**
  * GET /api/payments/user/:userId/history
  * Get user's payment history with pagination
  * Query: page, limit
