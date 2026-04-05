@@ -1,21 +1,21 @@
-import db from '../db/index.js';
+import db from "../db/index.js";
 
 const ordersModel = {
   async getAll() {
     const result = await db.query(`SELECT * FROM orders`);
-    return result.rows.map(order => ({
+    return result.rows.map((order) => ({
       ...order,
-      shipping_address: JSON.parse(order.shipping_address)
+      shipping_address: JSON.parse(order.shipping_address),
     }));
   },
 
-  async getById(id) {
-    const result = await db.query(
-      `SELECT * FROM orders WHERE id = $1`,
-      [id]
-    );
+  async getById(id, userId) {
+    const result = await db.query(`SELECT * FROM orders WHERE id = $1 and customer_id = $2`, [id, userId]);
     if (!result.rows[0]) return null;
     const order = result.rows[0];
+    order.subtotal = parseFloat(order.subtotal);
+    order.tax = parseFloat(order.tax);
+    order.delivery_fee = parseFloat(order.delivery_fee);
     order.shipping_address = JSON.parse(order.shipping_address);
     return order;
   },
@@ -23,15 +23,23 @@ const ordersModel = {
   async getByCustomerId(customerId) {
     const result = await db.query(
       `SELECT * FROM orders WHERE customer_id = $1 ORDER BY order_date DESC`,
-      [customerId]
+      [customerId],
     );
-    return result.rows.map(order => ({
+    return result.rows.map((order) => ({
       ...order,
-      shipping_address: JSON.parse(order.shipping_address)
+      shipping_address: JSON.parse(order.shipping_address),
     }));
   },
 
-  async create(customerId, subtotal, tax, deliveryFee, shippingAddress, paymentMethod, status = 'pending') {
+  async create(
+    customerId,
+    subtotal,
+    tax,
+    deliveryFee,
+    shippingAddress,
+    paymentMethod,
+    status = "pending",
+  ) {
     const query = `
       INSERT INTO orders (customer_id, subtotal, tax, delivery_fee, shipping_address, payment_method, status)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -45,7 +53,7 @@ const ordersModel = {
       deliveryFee,
       JSON.stringify(shippingAddress),
       paymentMethod,
-      status
+      status,
     ];
 
     try {
@@ -54,7 +62,7 @@ const ordersModel = {
       order.shipping_address = JSON.parse(order.shipping_address);
       return order;
     } catch (error) {
-      console.error('Gagal membuat order:', error);
+      console.error("Gagal membuat order:", error);
       throw error;
     }
   },
@@ -67,10 +75,16 @@ const ordersModel = {
     `;
 
     try {
-      const result = await db.query(query, [orderId, productId, quantity, price, subtotal]);
+      const result = await db.query(query, [
+        orderId,
+        productId,
+        quantity,
+        price,
+        subtotal,
+      ]);
       return result.rows[0];
     } catch (error) {
-      console.error('Gagal menambah item ke order:', error);
+      console.error("Gagal menambah item ke order:", error);
       throw error;
     }
   },
@@ -79,11 +93,11 @@ const ordersModel = {
     try {
       const result = await db.query(
         `SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`,
-        [orderId]
+        [orderId],
       );
       return result.rows;
     } catch (error) {
-      console.error('Gagal mengambil order items:', error);
+      console.error("Gagal mengambil order items:", error);
       throw error;
     }
   },
@@ -105,7 +119,7 @@ const ordersModel = {
       order.items = itemsResult.rows;
       return order;
     } catch (error) {
-      console.error('Gagal mengambil order dengan items:', error);
+      console.error("Gagal mengambil order dengan items:", error);
       throw error;
     }
   },
@@ -122,7 +136,7 @@ const ordersModel = {
       const result = await db.query(query, [quantity, productId]);
       return result.rows[0];
     } catch (error) {
-      console.error('Gagal mengurangi stock:', error);
+      console.error("Gagal mengurangi stock:", error);
       throw error;
     }
   },
@@ -132,14 +146,14 @@ const ordersModel = {
     try {
       const result = await db.query(
         `UPDATE orders SET status = $1 WHERE id = $2 RETURNING *`,
-        [status, id]
+        [status, id],
       );
       if (!result.rows[0]) return null;
       const order = result.rows[0];
       order.shipping_address = JSON.parse(order.shipping_address);
       return order;
     } catch (error) {
-      console.error('Gagal update order:', error);
+      console.error("Gagal update order:", error);
       throw error;
     }
   },
@@ -149,7 +163,7 @@ const ordersModel = {
       await db.query(`DELETE FROM orders WHERE id = $1`, [id]);
       return true;
     } catch (error) {
-      console.error('Gagal menghapus order:', error);
+      console.error("Gagal menghapus order:", error);
       throw error;
     }
   },
@@ -158,14 +172,14 @@ const ordersModel = {
     try {
       const result = await db.query(
         `SELECT id FROM orders WHERE id = $1 AND customer_id = $2`,
-        [orderId, customerId]
+        [orderId, customerId],
       );
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Gagal validasi order:', error);
+      console.error("Gagal validasi order:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default ordersModel;
