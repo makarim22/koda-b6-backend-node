@@ -101,6 +101,17 @@ const ProductModel = {
     const result = await db.query(sql, values);
     return result.rows[0] || null;
   },
+  
+  async increaseStock(productId, quantity, client) {
+    const queryFn = client ? client.query.bind(client) : db.query.bind(db);
+    
+    const result = await queryFn(
+      'UPDATE products SET stock = stock + $1 WHERE id = $2 RETURNING *',
+      [quantity, productId]
+    );
+    
+    return result.rows[0] || null;
+  },
 
   /**
    * Deletes a product by its ID

@@ -156,8 +156,10 @@ const checkoutController = {
    * @param {import("express").Response} res
    */
   async getOrderById(req, res) {
+    console.log("id", req.params.orderId);
     try {
-      const order = await ordersModel.getById(parseInt(req.params.id));
+      const order = await ordersModel.getById(parseInt(req.params.orderId));
+      console.log("ordernya", order);
 
       if (!order) {
         return res.status(404).json({ error: "Order tidak ditemukan" });
@@ -176,8 +178,9 @@ const checkoutController = {
    * @param {import("express").Response} res
    */
   async getUserOrders(req, res) {
+    console.log("params", req.params);
     try {
-      const customerId = parseInt(req.params.customerId);
+      const customerId = parseInt(req.params.userId);
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
 
@@ -200,8 +203,9 @@ const checkoutController = {
    * @param {import("express").Response} res
    */
   async cancelOrder(req, res) {
+    console.log("params", req.params);
     try {
-      const orderId = parseInt(req.params.id);
+      const orderId = parseInt(req.params.orderId);
       const client = await db.getClient();
 
       try {
@@ -222,7 +226,7 @@ const checkoutController = {
         }
 
         // Get order items
-        const orderItems = await ordersModel.getOrderItems(orderId);
+        const orderItems = await ordersModel.getItems(orderId);
 
         // Restore stock
         for (const item of orderItems) {
