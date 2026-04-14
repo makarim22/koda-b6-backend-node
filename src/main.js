@@ -7,9 +7,21 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import { specs } from './swagger.js';
 import swaggerUi from 'swagger-ui-express';
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+
+
+const corsOptions = {
+  origin: ['http://localhost:5173', 'http://68.183.226.223:21001', 'https://coffeeshop-jaka.my.id'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api/admin/users", userRoutes);
 app.use("/api/auth", authRoutes);

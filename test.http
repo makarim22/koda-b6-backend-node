@@ -105,7 +105,7 @@ content-type: application/json
 GET http://localhost:3002/products/1/discounts HTTP/1.1
 content-type: application/json
 
-###
+### checkout endpoint
 POST http://localhost:3002/checkout/create-order HTTP/1.1
 content-type: application/json
 
@@ -114,3 +114,62 @@ content-type: application/json
   "paymentMethod": "transfer_bank",
   "shippingAddress": "Jl. Merdeka No. 123, Jakarta Pusat, 12190"
 }
+
+###
+POST http://localhost:3002/checkout/validate HTTP/1.1
+content-type: application/json
+
+{
+  "customerId": 2
+}
+
+###
+GET http://localhost:3002/checkout/orders/1 HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/checkout/user/1/orders HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/checkout/orders/2/cancel HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/payments/create HTTP/1.1
+content-type: application/json
+
+{
+  "orderId": 4,
+  "userId": 2,
+  "amount": 124.62
+}
+
+###
+POST http://localhost:3002/payments/1/complete HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/payments/2/fail HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/payments/3/cancel HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/payments/3 HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/payments/order/2 HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3002/payments/2/refund/request HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3002/payments/user/1/history HTTP/1.1
+content-type: application/json
+
