@@ -1,4 +1,4 @@
-import productDiscountsModel from "../models/productdiscount.model.js";
+import productDiscountsModel from "../models/productDiscount.model.js";
 import productsModel from "../models/products.model.js";
 
 const productDiscountsController = {
