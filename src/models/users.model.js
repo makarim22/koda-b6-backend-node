@@ -46,27 +46,27 @@ const UserModel = {
     };
   },
 
-  /**
-   * Retrieves a single user by their ID
-   * 
-   * @param {number} id - The user's unique identifier
-   * @returns {Promise<Object|undefined>} The user object if found, undefined otherwise
-   */
-  async getById(id) {
-    const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0];
-  },
+  // /**
+  //  * Retrieves a single user by their ID
+  //  * 
+  //  * @param {number} id - The user's unique identifier
+  //  * @returns {Promise<Object|undefined>} The user object if found, undefined otherwise
+  //  */
+  // async getById(id) {
+  //   const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+  //   return result.rows[0];
+  // },
 
-    /**
-   * Retrieves a single user by their email
-   * 
-   * @param {string} email - The user's email
-   * @returns {Promise<Object|undefined>} The user object if found, undefined otherwise
-   */
-  async getByEmail(email){
-   const result = await db.query('select * from users where email= $1', [email]);
-   return result.rows[0];
-  },
+  async getByEmail(email) {
+  const result = await db.query(
+    `SELECT u.*, ur.role
+     FROM users u
+     LEFT JOIN user_roles ur ON u.id = ur.user_id
+     WHERE u.email = $1`,
+    [email]
+  );
+  return result.rows[0];
+},
 
   /**
    * Updates a user's information by ID

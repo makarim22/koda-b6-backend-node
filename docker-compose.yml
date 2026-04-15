@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: coffee_shop
+      POSTGRES_DB: coffeeshop
     ports:
       - "5434:5432"
     volumes:
@@ -39,7 +39,7 @@ services:
       - "3005:3005"
     env_file: .env
     environment:
-      DATABASE_URL: postgres://postgres:password@postgres:5432/coffee_shop
+      DATABASE_URL: postgres://postgres:password@postgres:5432/coffeeshop
       REDIS_URL: redis://redis-cache:6379
       NODE_ENV: development
       PORT: 3005

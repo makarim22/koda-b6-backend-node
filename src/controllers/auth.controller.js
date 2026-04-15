@@ -106,13 +106,14 @@ const authController = {
        const jwtConfig = { 
       Secret: process.env.JWT_SECRET, 
       Expiration: 3600000, 
-      Issuer: 'coffeeshop-api' 
+      Issuer: 'coffee-shop-api' 
       };
 
       // Return user without password
       const { password: _, ...userWithoutPassword } = user;
 
-      const token = generateJWT(user.id, user.email, jwtConfig)
+      const userRole = user.role || 'user';
+      const token = generateJWT(user.id, user.email, userRole, jwtConfig)
        res.status(200).json({ message: "login succeeded", token, user: userWithoutPassword });
     } catch (err) {
       res.status(500).json({ error: err.message });

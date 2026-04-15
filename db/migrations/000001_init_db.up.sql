@@ -104,19 +104,19 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 
-CREATE TABLE IF NOT EXISTS order_detail (
+CREATE TABLE IF NOT EXISTS order_items (
     id             SERIAL PRIMARY KEY,
     order_id       INT NOT NULL,
     product_id     INT NOT NULL,
     size_id        INT,
-    temperature_id INT,
+    variant_id INT,
     quantity       INT NOT NULL DEFAULT 1,
     unit_price     DECIMAL(10,2) NOT NULL,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id)       REFERENCES orders(id)       ON DELETE CASCADE,
     FOREIGN KEY (product_id)     REFERENCES products(id)     ON DELETE RESTRICT,
     FOREIGN KEY (size_id)        REFERENCES sizes(id)        ON DELETE SET NULL,
-    FOREIGN KEY (temperature_id) REFERENCES temperature(id)  ON DELETE SET NULL
+    FOREIGN KEY (variant_id) REFERENCES variants(id)  ON DELETE SET NULL
 );
 
 
@@ -125,14 +125,14 @@ CREATE TABLE IF NOT EXISTS cart (
     customer_id    INT NOT NULL,
     product_id     INT NOT NULL,
     size_id        INT,
-    temperature_id INT,
+    variant_id INT,
     quantity       INT NOT NULL DEFAULT 1,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id)    REFERENCES users(id)        ON DELETE CASCADE,
     FOREIGN KEY (product_id)     REFERENCES products(id)     ON DELETE CASCADE,
     FOREIGN KEY (size_id)        REFERENCES sizes(id)        ON DELETE SET NULL,
-    FOREIGN KEY (temperature_id) REFERENCES temperature(id)  ON DELETE SET NULL
+    FOREIGN KEY (variant_id) REFERENCES variants(id)  ON DELETE SET NULL
 );
 
 

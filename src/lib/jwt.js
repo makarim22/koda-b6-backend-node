@@ -7,13 +7,14 @@ class JWTError extends Error {
   }
 }
 
-export function generateJWT(userID, email, config) {
+export function generateJWT(userID, email, role, config) {
   const now = Math.floor(Date.now() / 1000);
   const expiresAt = now + Math.floor(config.Expiration / 1000);
 
   const payload = {
     user_id: userID,
     email: email,
+    role: role, 
     iat: now,
     exp: expiresAt,
     iss: config.Issuer,
@@ -39,6 +40,7 @@ export function verifyJWT(tokenString, config) {
     const claims = {
       user_id: decoded.user_id,
       email: decoded.email,
+      role: decoded.role,
       iat: decoded.iat,
       exp: decoded.exp,
       iss: decoded.iss,

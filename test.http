@@ -1,13 +1,13 @@
-GET http://localhost:3002/admin/users HTTP/1.1
+GET http://localhost:3005/admin/users HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/admin/users?page=1&limit=5 HTTP/1.1
+GET http://localhost:3005/admin/users?page=1&limit=5 HTTP/1.1
 content-type: application/json
 
 
 ###
-POST http://localhost:3002/auth/register HTTP/1.1
+POST http://localhost:3005/auth/register HTTP/1.1
 content-type: application/json
 
 {
@@ -19,7 +19,7 @@ content-type: application/json
 
 ###
 ###
-POST http://localhost:3002/auth/login HTTP/1.1
+POST http://localhost:3005/auth/login HTTP/1.1
 content-type: application/json
 
 {
@@ -28,7 +28,7 @@ content-type: application/json
 }
 
 ###
-PUT http://localhost:3002/api/users/1 HTTP/1.1
+PUT http://localhost:3005/api/users/1 HTTP/1.1
 content-type: application/json
 
 {
@@ -37,11 +37,11 @@ content-type: application/json
 }
 
 ###
-DELETE http://localhost:3002/api/users/9 HTTP/1.1
+DELETE http://localhost:3005/api/users/9 HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/products HTTP/1.1
+POST http://localhost:3005/products HTTP/1.1
 content-type: application/json
 
 {
@@ -52,20 +52,20 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:3002/api/products HTTP/1.1
+GET http://localhost:3005/api/products HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/products?name=macchiato HTTP/1.1
+GET http://localhost:3005/products?name=macchiato HTTP/1.1
 content-type: application/json
 
 
 ###
-GET http://localhost:3002/products?page=1&limit=5 HTTP/1.1
+GET http://localhost:3005/products?page=1&limit=5 HTTP/1.1
 content-type: application/json
 
 ###
-PUT http://localhost:3002/products/17 HTTP/1.1
+PUT http://localhost:3005/products/17 HTTP/1.1
 content-type: application/json
 
 {
@@ -73,19 +73,19 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:3002/products/16 HTTP/1.1
+GET http://localhost:3005/products/16 HTTP/1.1
 content-type: application/json
 
 ###
-DELETE http://localhost:3002/products/16 HTTP/1.1
+DELETE http://localhost:3005/products/16 HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/reviews HTTP/1.1
+GET http://localhost:3005/reviews HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/reviews HTTP/1.1
+POST http://localhost:3005/reviews HTTP/1.1
 content-type: application/json
 
 {
@@ -98,15 +98,15 @@ content-type: application/json
 
 
 ###
-GET http://localhost:3002/products/1/variants HTTP/1.1
+GET http://localhost:3005/products/1/variants HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/products/1/discounts HTTP/1.1
+GET http://localhost:3005/products/1/discounts HTTP/1.1
 content-type: application/json
 
 ### checkout endpoint
-POST http://localhost:3002/checkout/create-order HTTP/1.1
+POST http://localhost:3005/checkout/create-order HTTP/1.1
 content-type: application/json
 
 {
@@ -116,7 +116,7 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:3002/checkout/validate HTTP/1.1
+POST http://localhost:3005/checkout/validate HTTP/1.1
 content-type: application/json
 
 {
@@ -124,19 +124,19 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:3002/checkout/orders/1 HTTP/1.1
+GET http://localhost:3005/checkout/orders/1 HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/checkout/user/1/orders HTTP/1.1
+GET http://localhost:3005/checkout/user/1/orders HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/checkout/orders/2/cancel HTTP/1.1
+POST http://localhost:3005/checkout/orders/2/cancel HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/payments/create HTTP/1.1
+POST http://localhost:3005/payments/create HTTP/1.1
 content-type: application/json
 
 {
@@ -146,42 +146,62 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:3002/payments/1/complete HTTP/1.1
+POST http://localhost:3005/payments/1/complete HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/payments/2/fail HTTP/1.1
+POST http://localhost:3005/payments/2/fail HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/payments/3/cancel HTTP/1.1
+POST http://localhost:3005/payments/3/cancel HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/payments/3 HTTP/1.1
+GET http://localhost:3005/payments/3 HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/payments/order/2 HTTP/1.1
+GET http://localhost:3005/payments/order/2 HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/payments/2/refund/request HTTP/1.1
+POST http://localhost:3005/payments/2/refund/request HTTP/1.1
 content-type: application/json
 
 ###
-GET http://localhost:3002/payments/user/1/history HTTP/1.1
+GET http://localhost:3005/payments/user/1/history HTTP/1.1
 content-type: application/json
 
 ###
-POST http://localhost:3002/api/auth/login HTTP/1.1
+POST http://localhost:3005/api/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "caket.haryanto@gmail.com",
+    "password": "password123"
+}
+
+###
+POST http://localhost:3005/api/auth/register HTTP/1.1
 content-type: application/json
 
 {
     "email": "sakura@gmail.com",
-    "password": "secret22"
+    "password": "secret22",
+    "confirmPassword": "secret22"
 }
 
 ###
-GET http://localhost:3002/api/products HTTP/1.1
+GET http://localhost:3005/api/products HTTP/1.1
+content-type: application/json
+
+
+###
+GET http://localhost:3005/api/admin/users HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3005/api/admin/users HTTP/1.1
+Authorization: Bearer eyJnhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1MCwiZW1haWwiOiJjYWtldC5oYXJ5YW50b0BnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzYyODgxNDMsImV4cCI6MTc3NjI5MTc0MywiaXNzIjoiY29mZmVlLXNob3AtYXBpIn0.esBoTlPff7bBEw5C4TkZlifD-jq3CDPEdASLqYDe7y0
 content-type: application/json

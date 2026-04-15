@@ -41,6 +41,9 @@ app.get("/", function(req, res){
     })
 });
 
-app.listen(3002, function(){
-    console.log(`App listening on port 3002`)
+const PORT = process.env.PORT || 3002;
+
+app.listen(PORT, '0.0.0.0', function(){
+    console.log(`App listening on port ${PORT}`);
 });
+
