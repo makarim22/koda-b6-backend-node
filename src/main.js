@@ -8,6 +8,7 @@ import paymentRoutes from "./routes/payment.routes.js";
 import { specs } from './swagger.js';
 import swaggerUi from 'swagger-ui-express';
 import cors from "cors";
+import redisClient from './config/redis.js'
 
 const app = express();
 app.use(express.json());
@@ -35,7 +36,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.get("/", function(req, res){
     res.json({
         success: true,
-        message: "backend is running well"
+        message: "backend is running well",
+        redis: redisClient.isOpen ? 'connected' : 'disconnected'
     })
 });
 

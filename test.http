@@ -52,7 +52,7 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:3002/products HTTP/1.1
+GET http://localhost:3002/api/products HTTP/1.1
 content-type: application/json
 
 ###
@@ -173,3 +173,15 @@ content-type: application/json
 GET http://localhost:3002/payments/user/1/history HTTP/1.1
 content-type: application/json
 
+###
+POST http://localhost:3002/api/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "sakura@gmail.com",
+    "password": "secret22"
+}
+
+###
+GET http://localhost:3002/api/products HTTP/1.1
+content-type: application/json

@@ -1,6 +1,10 @@
 import db from '../db/index.js';
+import redis from '../config/redis.js';
+
+ const CACHE_TTL = 3600;
 
 const ProductModel = {
+
   /**
    * Creates a new product in the database
    * 
@@ -27,26 +31,75 @@ const ProductModel = {
    * @param {number} [limit=10] - Number of products per page
    * @returns {Promise<Object>} Paginated response object
    */
-  async getAll(page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
+  // async getAll(page = 1, limit = 10) {
+  //   const offset = (page - 1) * limit;
     
-    const result = await db.query(
-      'SELECT * FROM products ORDER BY id LIMIT $1 OFFSET $2',
-      [limit, offset]
-    );
+  //   const result = await db.query(
+  //     'SELECT * FROM products ORDER BY id LIMIT $1 OFFSET $2',
+  //     [limit, offset]
+  //   );
     
-    const countResult = await db.query('SELECT COUNT(*) FROM products');
-    const totalProducts = parseInt(countResult.rows[0].count);
+  //   const countResult = await db.query('SELECT COUNT(*) FROM products');
+  //   const totalProducts = parseInt(countResult.rows[0].count);
     
-    return {
-      data: result.rows,
-      totalProducts,
-      currentPage: page,
-      limit,
-      totalPages: Math.ceil(totalProducts / limit)
-    };
-  },
+  //   return {
+  //     data: result.rows,
+  //     totalProducts,
+  //     currentPage: page,
+  //     limit,
+  //     totalPages: Math.ceil(totalProducts / limit)
+  //   };
+  // },
 
+   async getAll(page = 1, limit = 10) {
+    const cacheKey = `products:page:${page}:limit:${limit}`;
+    
+    try {
+      // 1. Cek Redis dulu
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        console.log(`📦 Cache HIT: ${cacheKey}`);
+        return {
+          ...JSON.parse(cachedData),
+          source: 'cache'
+        };
+      }
+      
+      // 2. Jika tidak ada di cache, query database
+      console.log(`📦 Cache MISS: ${cacheKey}, querying database...`);
+      const offset = (page - 1) * limit;
+      
+      const result = await db.query(
+        'SELECT * FROM products ORDER BY id LIMIT $1 OFFSET $2',
+        [limit, offset]
+      );
+      
+      const countResult = await db.query('SELECT COUNT(*) FROM products');
+      const totalProducts = parseInt(countResult.rows[0].count);
+      
+      const responseData = {
+        data: result.rows,
+        totalProducts,
+        currentPage: page,
+        limit,
+        totalPages: Math.ceil(totalProducts / limit),
+        hasNextPage: page < Math.ceil(totalProducts / limit),
+        hasPrevPage: page > 1
+      };
+      
+      // 3. Simpan ke Redis dengan TTL
+      await redis.setEx(cacheKey, CACHE_TTL, JSON.stringify(responseData));
+      console.log(`✓ Data cached for ${CACHE_TTL}s`);
+      
+      return {
+        ...responseData,
+        source: 'database'
+      };
+    } catch (err) {
+      console.error('Error in getAll:', err);
+      throw err;
+    }
+  },
   /**
    * Retrieves a single product by its ID
    * 
