@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffeeshop-backend
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis-cache
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3002
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      REDIS_HOST: redis-cache
+      REDIS_PORT: 6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - coffeeshop-network
+
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - coffeeshop-network
+
+networks:
+  coffeeshop-network:
+    driver: bridge
