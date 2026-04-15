@@ -1,6 +1,52 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: coffeeshop-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-coffeeshop}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coffeeshop-network
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: coffeeshop-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coffeeshop-network
+
+  migrate:
+    image: migrate/migrate
+    container_name: coffeeshop-migrate
+    volumes:
+      - ./db/migrations:/migrations
+    command: -path=/migrations -database="postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-coffeeshop}?sslmode=disable" up
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - coffeeshop-network
+
   backend:
     build:
       context: .
@@ -8,33 +54,30 @@ services:
     container_name: coffeeshop-backend
     ports:
       - "3002:3002"
-    depends_on:
-      - redis-cache
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      PORT: 3002
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      JWT_SECRET: ${JWT_SECRET}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-coffeeshop}
       REDIS_HOST: redis-cache
       REDIS_PORT: 6379
-    volumes:
-      - .:/app
-      - /app/node_modules
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - coffeeshop-network
 
-  redis-cache:
-    image: redis:latest
-    container_name: redis-cache
-    ports:
-      - "6379:6379"
-    networks:
-      - coffeeshop-network
+volumes:
+  postgres_data:
+  redis_data:
 
 networks:
   coffeeshop-network:
